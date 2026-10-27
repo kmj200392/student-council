@@ -1,7 +1,7 @@
 'use client';
 import {useEffect, useRef, useState} from 'react';
 
-export default function PdfViewer({file, lang}) {
+export default function PdfViewer({file, lang, onBlobUrl}) {
  const [pdf, setPdf] = useState(null);
  const [page, setPage] = useState(1);
  const [status, setStatus] = useState('loading');
@@ -9,19 +9,29 @@ export default function PdfViewer({file, lang}) {
  const holder = useRef(null);
  const canvas = useRef(null);
  useEffect(() => {
-  let task, cancelled = false;
+  let task, cancelled = false, blobUrl;
   setPage(1); setPdf(null); setStatus('loading');
   (async () => {
    try {
     const pdfjs = await import('pdfjs-dist');
     pdfjs.GlobalWorkerOptions.workerSrc = '/pdfjs/pdf.worker.min.mjs';
-    task = pdfjs.getDocument({url:'/assets/' + file, cMapUrl:'/pdfjs/cmaps/', cMapPacked:true, standardFontDataUrl:'/pdfjs/standard_fonts/'});
+    let source = {url:'/assets/' + file};
+    if (file === 'paran-policy.pdf') {
+     const responses = await Promise.all(['aa','ab'].map(part=>fetch('/assets/paran-policy.part-'+part)));
+     if (responses.some(response=>!response.ok)) throw new Error('Policy book could not be loaded');
+     const parts = await Promise.all(responses.map(response=>response.arrayBuffer()));
+     const blob = new Blob(parts, {type:'application/pdf'});
+     blobUrl=URL.createObjectURL(blob);
+     if (!cancelled) onBlobUrl(blobUrl);
+     source={data:new Uint8Array(await blob.arrayBuffer())};
+    }
+    task = pdfjs.getDocument({...source, cMapUrl:'/pdfjs/cmaps/', cMapPacked:true, standardFontDataUrl:'/pdfjs/standard_fonts/'});
     const loaded = await task.promise;
     if (!cancelled) { setPdf(loaded); setStatus('ready'); }
    } catch (error) { if (!cancelled) { console.error(error); setStatus('error'); } }
   })();
-  return () => {cancelled=true; task?.destroy();};
- }, [file]);
+  return () => {cancelled=true; task?.destroy(); if(blobUrl) URL.revokeObjectURL(blobUrl);};
+ }, [file, onBlobUrl]);
  useEffect(() => {
   const el=holder.current; if(!el) return;
   const resize = () => setWidth(el.clientWidth);
