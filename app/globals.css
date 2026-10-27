@@ -5,3 +5,5 @@
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}}
 .pdf-controls{display:flex;align-items:center;justify-content:center;gap:22px;padding:10px;background:#f6f8fc;border-top:1px solid #e8edf5;border-bottom:1px solid #e2e9f4;font-size:12px}.pdf-controls button{border:1px solid #d7e0ed;background:white;border-radius:4px;color:#334e73;padding:6px 12px;cursor:pointer}.pdf-controls button:disabled{opacity:.35;cursor:default}.pdf-controls span{min-width:55px;text-align:center;color:#687991}.pdf-content{flex:1;min-height:0;overflow:auto;text-align:center;background:#e9eef5;padding:16px 0}.pdf-content canvas{display:block;max-width:100%;margin:0 auto;box-shadow:0 4px 20px #2c3f591a}.pdf-content p{font-size:13px;color:#64758e}
 @media(max-width:650px){.visual-label{top:70px;left:25px}}
+@media(min-width:651px){.visual-label{top:100px;left:45px}}
+@media(max-width:650px){.visual-label{top:82px;left:30px}}
